@@ -1,9 +1,13 @@
 {
-  "name": "Portfolio-Management",
+  "name": "portfolio-management",
   "private": true,
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=portfolio",
+    "dev:management": "turbo run dev --filter=nextn",
+    "dev:server": "turbo run dev --filter=portfolio-be",
+    "dev:all": "turbo run dev --filter=portfolio --filter=nextn --filter=portfolio-be",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
