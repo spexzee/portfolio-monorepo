@@ -8,10 +8,11 @@ import { motion } from "framer-motion";
 import "react-vertical-timeline-component/style.min.css";
 
 import { styles } from "../styles";
-import { experiences } from "../constants";
 import { SectionWrapper } from "../hoc";
 import { textVariant } from "../utils/motion";
 import { Experience } from "../constants";
+import { useGetExperiences } from "../API/experiences";
+import { SimpleLoader } from "./";
 
 interface ExperienceCardProps {
   experience: Experience;
@@ -62,6 +63,48 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ experience }) => {
 };
 
 const ExperienceComponent: React.FC = () => {
+  const { data: experiences = [], isLoading, error } = useGetExperiences();
+
+  if (isLoading) {
+    return (
+      <>
+        <motion.div variants={textVariant()}>
+          <p className={`${styles.sectionSubText} text-center`}>
+            What I have done so far
+          </p>
+          <h2 className={`${styles.sectionHeadText} text-center`}>
+            Work Experience.
+          </h2>
+        </motion.div>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <SimpleLoader />
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <motion.div variants={textVariant()}>
+          <p className={`${styles.sectionSubText} text-center`}>
+            What I have done so far
+          </p>
+          <h2 className={`${styles.sectionHeadText} text-center`}>
+            Work Experience.
+          </h2>
+        </motion.div>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <p className="text-red-400">Failed to load experiences</p>
+        </div>
+      </>
+    );
+  }
+
+  if (experiences.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <motion.div variants={textVariant()}>

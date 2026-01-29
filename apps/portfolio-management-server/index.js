@@ -7,16 +7,22 @@ const PORT = process.env.PORT || 3000;
 const projectRoutes = require('./routes/project.routes');
 const technologyRoutes = require('./routes/technology.routes');
 const commonRoutes = require('./routes/common.routes');
+const experienceRoutes = require('./routes/experience.routes');
+const configRoutes = require('./routes/config.routes');
+const imagekitRoutes = require('./routes/imagekit.routes');
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 
 app.use('/api/project', projectRoutes);
 app.use('/api/tech', technologyRoutes);
-app.use('/api/common',commonRoutes)
+app.use('/api/common', commonRoutes);
+app.use('/api/experience', experienceRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/imagekit', imagekitRoutes);
 // Basic route
 app.get('/', (req, res) => {
     res.send('Welcome to Portfolio Backend');

@@ -10,8 +10,14 @@ const projectSchema = new mongoose.Schema({
         required: true,
     },
     technologies: [{
-        type: String,
-        required: true,
+        name: {
+            type: String,
+            required: true,
+        },
+        color: {
+            type: String,
+            default: 'blue-text-gradient',
+        }
     }],
     image: {
         type: String,
@@ -23,9 +29,15 @@ const projectSchema = new mongoose.Schema({
     demo_link: {
         type: String,
         required: true,
+    },
+    category: {
+        type: String,
+        enum: ['frontend', 'fullstack', 'tools'],
+        default: 'frontend',
     }
-});
+}, { timestamps: true });
 
 const Project = mongoose.model('Project', projectSchema);
 
 module.exports = Project;
+

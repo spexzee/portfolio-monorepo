@@ -54,7 +54,7 @@ const ProjectForm = ({
   const [formData, setFormData] = useState<ProjectFormData>({
     name: initialData?.name || '',
     description: initialData?.description || '',
-    technologiesInput: initialData?.technologies?.join(', ') || '',
+    technologiesInput: initialData?.technologies?.map(t => typeof t === 'string' ? t : t.name).join(', ') || '',
     liveUrl: initialData?.demo_link || '',
     repoUrl: initialData?.source_code_link || '',
   });
@@ -70,14 +70,14 @@ const ProjectForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     const projectData: Project = {
       name: formData.name,
       description: formData.description,
-      technologies: formData.technologiesInput.split(',').map(tech => tech.trim()).filter(tech => tech),
+      technologies: formData.technologiesInput.split(',').map(tech => ({ name: tech.trim(), color: 'blue-text-gradient' })).filter(tech => tech.name),
       source_code_link: formData.repoUrl,
       demo_link: formData.liveUrl,
-      image : 'demo.img' // Preserve existing image if editing
+      image: 'demo.img' // Preserve existing image if editing
     };
 
     await onSubmit(projectData);
@@ -160,10 +160,10 @@ export default function ProjectsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-  const { data : projects = [], isError, isLoading} = useGetProjects();
-  const { mutateAsync : addProject } = useAddProject();
-  const {mutateAsync : editProject} = useEditProject()
-  const {mutateAsync : deleteProject} = useDeleteProject()
+  const { data: projects = [], isError, isLoading } = useGetProjects();
+  const { mutateAsync: addProject } = useAddProject();
+  const { mutateAsync: editProject } = useEditProject()
+  const { mutateAsync: deleteProject } = useDeleteProject()
 
   useEffect(() => {
     if (isError) {
@@ -263,11 +263,11 @@ export default function ProjectsPage() {
     },
     {
       name: 'Technologies',
-      selector: (row) => row.technologies.join(', '),
+      selector: (row) => row.technologies.map(t => typeof t === 'string' ? t : t.name).join(', '),
       cell: (row) => (
         <div className="flex flex-wrap gap-1 py-2 max-w-xs overflow-hidden">
-          {row.technologies.map((tech) => (
-            <Badge key={tech} variant="secondary">{tech}</Badge>
+          {row.technologies.map((tech, i) => (
+            <Badge key={i} variant="secondary">{typeof tech === 'string' ? tech : tech.name}</Badge>
           ))}
         </div>
       ),
@@ -275,7 +275,7 @@ export default function ProjectsPage() {
     },
     {
       name: 'Links',
-      center : true,
+      center: true,
       cell: (row) => (
         <div className="flex gap-2 items-center">
           {row.demo_link && (
@@ -331,10 +331,10 @@ export default function ProjectsPage() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={() =>{
+                <AlertDialogAction
+                  onClick={() => {
                     handleDeleteProject(row._id!, row.name)
-                  }} 
+                  }}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   Delete

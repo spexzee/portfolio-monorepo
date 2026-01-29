@@ -1,13 +1,19 @@
+export interface ProjectTech {
+  name: string;
+  color: string;
+}
+
 export interface Project {
-  _id ?: string;
+  _id?: string;
   createdAt?: Date;
   updateAt?: Date;
   name: string;
   description: string;
-  technologies:string[];
-  image ?: string;
+  technologies: ProjectTech[];
+  image?: string;
   source_code_link: string;
   demo_link: string;
+  category?: 'frontend' | 'fullstack' | 'tools';
 }
 
 export interface Skill {
