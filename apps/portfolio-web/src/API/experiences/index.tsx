@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { Experience } from './../../constants/index';
-import { experiences as fallbackExperiences } from '../../constants';
 import useApi from '../useAPI';
 
 export interface ExperiencesResponse {
@@ -15,8 +14,8 @@ export const useGetExperiences = (enabled: boolean = true) => {
                 const response = await useApi<ExperiencesResponse>('GET', '/api/experience/experiences');
                 return response.experiences;
             } catch (error) {
-                console.warn('API fetch failed, using fallback experiences:', error);
-                return fallbackExperiences;
+                console.warn('API fetch failed:', error);
+                return [];
             }
         },
         enabled,
