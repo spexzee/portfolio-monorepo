@@ -103,24 +103,25 @@ const BouncyBall: React.FC<{
     }
   );
 
-  // Check if mobile for fallback
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-  // Enhanced fallback for non-WebGL devices or mobile performance
+  // Enhanced fallback for non-WebGL devices or when context limit is reached
   const TechFallback = () => {
     const [imageError, setImageError] = useState(false);
 
     return (
-      <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center border border-purple-400/40 shadow-lg backdrop-blur-sm">
+      <div className="w-28 h-28 rounded-full bg-[#fff8eb] flex items-center justify-center border-2 border-white/20 shadow-xl overflow-hidden">
         {technology?.icon && !imageError ? (
-          <img
-            src={technology.icon}
-            alt={technology.name}
-            className="w-16 h-16 object-contain"
-            onError={() => setImageError(true)}
-          />
+          <div className="relative w-16 h-16">
+            <img
+              src={technology.icon}
+              alt={technology.name}
+              className="w-full h-full object-contain z-10"
+              onError={() => setImageError(true)}
+            />
+            {/* Subtle shadow to mimic 3D decal look */}
+            <div className="absolute inset-0 bg-black/5 blur-[2px] rounded-full transform translate-y-1 translate-x-1" />
+          </div>
         ) : (
-          <div className="text-2xl font-bold text-white/50">{technology?.name?.charAt(0) || '⚡'}</div>
+          <div className="text-2xl font-bold text-gray-400">{technology?.name?.charAt(0) || '⚡'}</div>
         )}
       </div>
     );
@@ -144,7 +145,7 @@ const BouncyBall: React.FC<{
       className="flex flex-col items-center justify-start select-none" // Changed to justify-start
     >
       <div className="w-28 h-28 pointer-events-none relative">
-        {webglSupported && !isMobile ? (
+        {webglSupported ? (
           <MobileCompatibilityWrapper
             componentName="BallCanvas"
             fallback={<TechFallback />}
