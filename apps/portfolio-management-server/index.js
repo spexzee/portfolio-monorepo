@@ -10,6 +10,7 @@ const commonRoutes = require('./routes/common.routes');
 const experienceRoutes = require('./routes/experience.routes');
 const configRoutes = require('./routes/config.routes');
 const imagekitRoutes = require('./routes/imagekit.routes');
+const authRoutes = require('./routes/auth.routes');
 
 // Middleware
 app.use(cors());
@@ -17,6 +18,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 
+app.use('/api/auth', authRoutes);
 app.use('/api/project', projectRoutes);
 app.use('/api/tech', technologyRoutes);
 app.use('/api/common', commonRoutes);

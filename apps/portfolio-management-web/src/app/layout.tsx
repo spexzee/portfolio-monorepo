@@ -3,10 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import { SidebarProvider, Sidebar, SidebarTrigger, SidebarInset, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { Home, Briefcase, Wrench, FileText, Settings } from 'lucide-react';
-import Link from 'next/link';
-import { QueryClientProvider } from '@/providers/query-provider'; // Import the new provider
+import { QueryClientProvider } from '@/providers/query-provider';
+import { AuthProvider } from '@/providers/auth-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -19,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Spexzee',
+  title: 'Spexzee - Portfolio Manager',
   description: 'Admin dashboard for managing portfolio projects and skills.',
 };
 
@@ -29,72 +27,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={cn(
           geistSans.variable,
           geistMono.variable,
           'antialiased',
-          'flex min-h-screen flex-col' // Ensure body takes full height
+          'flex min-h-screen flex-col'
         )}
       >
-        <QueryClientProvider> {/* Wrap the core layout */}
-          <SidebarProvider>
-            <Sidebar variant="sidebar" collapsible="icon" className="dark:bg-zinc-900" >
-              <SidebarHeader className="p-4">
-                <Link href="/" className="flex items-center gap-2 font-semibold text-lg text-primary dark:text-primary">
-                  <Briefcase className="h-6 w-6" />
-                  Spexzee
-                </Link>
-              </SidebarHeader>
-              <SidebarContent className="flex-1">
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Dashboard" isActive={true} asChild>
-                      <Link href="/">
-                        <Home />
-                        <span>Dashboard</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Management" asChild>
-                      <Link href="/management">
-                        <Settings />
-                        <span>Management</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Resume" asChild>
-                      <Link href="/resume">
-                        <FileText />
-                        <span>Resume</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarContent>
-              {/* Optional Sidebar Footer */}
-              {/* <SidebarFooter>...</SidebarFooter> */}
-            </Sidebar>
-
-            <SidebarInset className="flex flex-col flex-1">
-              <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4">
-                {/* Mobile Sidebar Trigger */}
-                <div className="md:hidden">
-                  <SidebarTrigger />
-                </div>
-                {/* Header Content (e.g., User Menu, Search) can go here */}
-                <div className="ml-auto">
-                  {/* Placeholder for User Menu */}
-                </div>
-              </header>
-              <main className="flex-1 overflow-y-auto p-6">
-                {children}
-              </main>
-            </SidebarInset>
-          </SidebarProvider>
+        <QueryClientProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </QueryClientProvider>
         <Toaster />
       </body>
