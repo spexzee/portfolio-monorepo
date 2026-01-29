@@ -6,16 +6,16 @@ import { Briefcase, Wrench } from 'lucide-react';
 import Link from "next/link";
 
 export default function DashboardHome() {
-  const {data : counts} = useGetCounts()
+  const { data: counts } = useGetCounts()
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
-        <Link target="_blank" href='https://spexzee-portfolio.vercel.app' className="" passHref>
-        <Button variant="outline" className="bg-primary text-white">
-          View Portfolio
-        </Button>
+        <Link target="_blank" href='https://www.spexzee.me' className="" passHref>
+          <Button variant="outline" className="bg-primary text-white">
+            View Portfolio
+          </Button>
         </Link>
       </div>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
