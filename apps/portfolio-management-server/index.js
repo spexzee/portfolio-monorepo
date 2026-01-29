@@ -11,6 +11,7 @@ const experienceRoutes = require('./routes/experience.routes');
 const configRoutes = require('./routes/config.routes');
 const imagekitRoutes = require('./routes/imagekit.routes');
 const authRoutes = require('./routes/auth.routes');
+const messageRoutes = require('./routes/message.routes');
 
 // Middleware
 app.use(cors());
@@ -25,6 +26,7 @@ app.use('/api/common', commonRoutes);
 app.use('/api/experience', experienceRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/imagekit', imagekitRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

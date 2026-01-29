@@ -1,12 +1,12 @@
 import React, { useRef, useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
-import emailjs from "@emailjs/browser";
 
 import { styles } from "../styles";
 import { EarthCanvas } from "./canvas";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
 import { MobileCompatibilityWrapper } from "./";
+import { useToast } from "./Toast";
 
 interface FormData {
   name: string;
@@ -33,6 +33,7 @@ const useWebGLSupport = () => {
 
 const Contact: React.FC = () => {
   const webglSupported = useWebGLSupport();
+  const { showToast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [form, setForm] = useState<FormData>({
     name: "",
@@ -52,41 +53,42 @@ const Contact: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
 
-    emailjs
-      .send(
-        import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
-        {
-          from_name: form.name,
-          to_name: "Spexzee",
-          from_email: form.email,
-          to_email: "abub5979@gmail.com",
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
           message: form.message,
-        },
-        import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY
-      )
-      .then(
-        () => {
-          setLoading(false);
-          alert("Thank you. I will get back to you as soon as possible.");
+        }),
+      });
 
-          setForm({
-            name: "",
-            email: "",
-            message: "",
-          });
-        },
-        (error) => {
-          setLoading(false);
-          console.error(error);
+      const data = await response.json();
 
-          alert("Ahh, something went wrong. Please try again.");
-        }
-      );
+      if (data.success) {
+        showToast("Thank you! I will get back to you as soon as possible.", "success");
+        setForm({
+          name: "",
+          email: "",
+          message: "",
+        });
+      } else {
+        throw new Error(data.error || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("Ahh, something went wrong. Please try again.", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

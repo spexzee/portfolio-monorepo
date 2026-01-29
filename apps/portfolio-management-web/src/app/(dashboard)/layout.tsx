@@ -1,7 +1,7 @@
 'use client';
 
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarInset, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter } from '@/components/ui/sidebar';
-import { Home, FileText, Settings, LogOut } from 'lucide-react';
+import { Home, FileText, Settings, LogOut, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { ProtectedRoute } from '@/components/protected-route';
 import { useAuth } from '@/providers/auth-provider';
@@ -47,6 +47,14 @@ export default function DashboardLayout({
                                     <Link href="/resume">
                                         <FileText />
                                         <span>Resume</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton tooltip="Messages" asChild>
+                                    <Link href="/messages">
+                                        <MessageSquare />
+                                        <span>Messages</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
