@@ -6,6 +6,5 @@
             "source": "/(.*)",
             "destination": "/api"
         }
-    ],
-    "ignoreCommand": "bash vercel-ignore.sh"
+    ]
 }
