@@ -25,14 +25,21 @@ app.use('/api/common', commonRoutes);
 app.use('/api/experience', experienceRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/imagekit', imagekitRoutes);
+
 // Basic route
 app.get('/', (req, res) => {
     res.send('Welcome to Portfolio Backend');
 });
 
+// Connect to DB
 connectDB();
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+// Export for Vercel serverless
+module.exports = app;
