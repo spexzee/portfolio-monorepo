@@ -44,21 +44,23 @@ class StarsErrorBoundary extends Component<StarsErrorBoundaryProps, StarsErrorBo
 }
 
 interface StarsProps {
+  count?: number;
   [key: string]: any;
 }
 
-const Stars: React.FC<StarsProps> = (props) => {
+const Stars: React.FC<StarsProps> = ({ count = 5000, ...props }) => {
   const ref = useRef<THREE.Points>(null);
-  
+
   // Memoize the sphere generation for better performance
   const sphere = useMemo(() => {
     try {
-      return random.inSphere(new Float32Array(5000), { radius: 1.2 });
+      return random.inSphere(new Float32Array(count), { radius: 1.2 });
     } catch (error) {
       console.warn('Error generating star positions:', error);
       // Fallback: create a simpler star field
-      const positions = new Float32Array(1500); // Reduced complexity
-      for (let i = 0; i < 1500; i += 3) {
+      const fallbackCount = Math.min(count, 1500);
+      const positions = new Float32Array(fallbackCount); // Reduced complexity
+      for (let i = 0; i < fallbackCount; i += 3) {
         positions[i] = (Math.random() - 0.5) * 2.4;
         positions[i + 1] = (Math.random() - 0.5) * 2.4;
         positions[i + 2] = (Math.random() - 0.5) * 2.4;
@@ -90,12 +92,15 @@ const Stars: React.FC<StarsProps> = (props) => {
 };
 
 const StarsCanvas: React.FC = () => {
+  const isMobile = typeof window !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const starCount = isMobile ? 1500 : 5000;
+
   return (
-    <div className='w-full h-auto absolute inset-0 z-[-1]'>
+    <div className='w-full h-full absolute inset-0 z-[-1] overflow-hidden pointer-events-none'>
       <Canvas camera={{ position: [0, 0, 1] }}>
         <StarsErrorBoundary>
           <Suspense fallback={null}>
-            <Stars />
+            <Stars count={starCount} />
           </Suspense>
           <Preload all />
         </StarsErrorBoundary>

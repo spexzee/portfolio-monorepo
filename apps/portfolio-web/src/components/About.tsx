@@ -16,7 +16,7 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ index, title, icon }) => {
   return (
-    <Tilt 
+    <Tilt
       className='xs:w-[250px] w-full'
       options={{
         max: 45,
@@ -35,6 +35,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ index, title, icon }) => {
             src={icon}
             alt='web-development'
             className='w-16 h-16 object-contain'
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
 
           <h3 className='text-white text-[20px] font-bold text-center'>

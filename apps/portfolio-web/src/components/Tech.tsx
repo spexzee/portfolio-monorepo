@@ -32,7 +32,7 @@ const MIN_COLLISION_DISTANCE = BALL_SIZE * 0.85; // Improved collision detection
 // WebGL detection hook
 const useWebGLSupport = () => {
   const [webglSupported, setWebglSupported] = useState(true);
-  
+
   useEffect(() => {
     try {
       const canvas = document.createElement('canvas');
@@ -42,18 +42,18 @@ const useWebGLSupport = () => {
       setWebglSupported(false);
     }
   }, []);
-  
+
   return webglSupported;
 };
 
-const BouncyBall: React.FC<{ 
-  technology: Technology; 
+const BouncyBall: React.FC<{
+  technology: Technology;
   ball: BallData;
   index: number;
   showLabel?: boolean; // Add prop to control label visibility
 }> = ({ technology, ball, index, showLabel = true }) => {
   const webglSupported = useWebGLSupport();
-  
+
   // Create springs for this specific ball
   const [springs, api] = useSpring(() => ({
     x: ball.x,
@@ -67,7 +67,7 @@ const BouncyBall: React.FC<{
   useEffect(() => {
     ball.springs = springs;
     ball.api = api;
-    
+
     // Staggered fade in
     setTimeout(() => {
       api.start({ opacity: 1 });
@@ -82,13 +82,13 @@ const BouncyBall: React.FC<{
         ball.vy = 0;
         api.start({ scale: 1.1 });
       }
-      
+
       if (active) {
         ball.x = memo[0] + mx;
         ball.y = memo[1] + my;
         api.start({ x: ball.x, y: ball.y });
       }
-      
+
       if (last) {
         ball.isDragging = false;
         ball.isSettled = false;
@@ -98,26 +98,29 @@ const BouncyBall: React.FC<{
         ball.vy = Math.max(-maxVelocity, Math.min(maxVelocity, my * 0.15));
         api.start({ scale: 1 });
       }
-      
+
       return memo;
     }
   );
 
-  // Enhanced fallback for non-WebGL devices only
+  // Check if mobile for fallback
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  // Enhanced fallback for non-WebGL devices or mobile performance
   const TechFallback = () => {
     const [imageError, setImageError] = useState(false);
-    
+
     return (
-      <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center border border-purple-400/40 shadow-lg">
+      <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center border border-purple-400/40 shadow-lg backdrop-blur-sm">
         {technology?.icon && !imageError ? (
-          <img 
-            src={technology.icon} 
+          <img
+            src={technology.icon}
             alt={technology.name}
             className="w-16 h-16 object-contain"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="text-2xl">⚡</div>
+          <div className="text-2xl font-bold text-white/50">{technology?.name?.charAt(0) || '⚡'}</div>
         )}
       </div>
     );
@@ -141,7 +144,7 @@ const BouncyBall: React.FC<{
       className="flex flex-col items-center justify-start select-none" // Changed to justify-start
     >
       <div className="w-28 h-28 pointer-events-none relative">
-        {webglSupported ? (
+        {webglSupported && !isMobile ? (
           <MobileCompatibilityWrapper
             componentName="BallCanvas"
             fallback={<TechFallback />}
@@ -178,20 +181,20 @@ const Tech: React.FC = () => {
 
     const containerWidth = containerRef.current.offsetWidth;
     // const containerHeight = containerRef.current.offsetHeight;
-    
+
     const newBalls: BallData[] = technologies.map((tech, index) => {
       // Calculate grid with proper spacing to prevent overlap
       const ballSpacing = BALL_SIZE + 30; // Increased spacing between balls
       const cols = Math.floor((containerWidth - 40) / ballSpacing); // Account for margins
       const col = index % cols;
       const row = Math.floor(index / cols);
-      
+
       // Calculate position with proper spacing and centering
       const totalGridWidth = cols * ballSpacing;
       const startX = (containerWidth - totalGridWidth) / 2 + ballSpacing / 2;
       const x = startX + col * ballSpacing;
       const y = 20 + row * 50; // Vertical spacing
-      
+
       return {
         id: tech.name || `tech-${index}`,
         x: Math.max(15, Math.min(x, containerWidth - BALL_SIZE - 15)), // Ensure within bounds with margins
@@ -204,7 +207,7 @@ const Tech: React.FC = () => {
         api: null
       };
     });
-    
+
     ballsRef.current = newBalls;
     setBalls(newBalls);
   }, [technologies, gravityMode]);
@@ -212,28 +215,28 @@ const Tech: React.FC = () => {
   // Physics animation loop using requestAnimationFrame with timestamp
   const animate = (time: number) => {
     if (!containerRef.current) return;
-    
+
     const containerWidth = containerRef.current.offsetWidth;
     const containerHeight = containerRef.current.offsetHeight;
-    
+
     // Calculate delta time for consistent physics
     const deltaTime = previousTimeRef.current ? (time - previousTimeRef.current) / 16.67 : 1;
     previousTimeRef.current = time;
-    
+
     let ballsUpdated = false;
     const updatedBalls = [...ballsRef.current];
-    
+
     for (let i = 0; i < updatedBalls.length; i++) {
       const ball = updatedBalls[i];
       if (ball.isDragging || ball.isSettled) continue; // Skip settled balls
-      
+
       // Apply gravity with better physics
       ball.vy += GRAVITY * deltaTime;
-      
+
       // Update position
       ball.x += ball.vx * deltaTime;
       ball.y += ball.vy * deltaTime;
-      
+
       // Wall collisions with proper bouncing
       if (ball.x <= 0) {
         ball.x = 0;
@@ -242,7 +245,7 @@ const Tech: React.FC = () => {
         ball.x = containerWidth - BALL_SIZE;
         ball.vx = -ball.vx * BOUNCE;
       }
-      
+
       // Top boundary - prevent balls from going above container
       if (ball.y <= 0) {
         ball.y = 0;
@@ -252,12 +255,12 @@ const Tech: React.FC = () => {
           ball.vy = 0.5;
         }
       }
-      
+
       // Floor collision with improved physics
       if (ball.y >= containerHeight - BALL_SIZE - 25) {
         ball.y = containerHeight - BALL_SIZE - 25;
         ball.vy = -ball.vy * BOUNCE;
-        
+
         // Better settling detection
         if (Math.abs(ball.vy) < SETTLE_THRESHOLD && Math.abs(ball.vx) < SETTLE_THRESHOLD) {
           ball.vy = 0;
@@ -265,46 +268,46 @@ const Tech: React.FC = () => {
           ball.isSettled = true;
         }
       }
-      
+
       // Apply friction only when not colliding
       ball.vx *= FRICTION;
       ball.vy *= FRICTION;
-      
+
       // Update spring positions with improved physics response
       if (ball.api) {
-        ball.api.start({ 
-          x: ball.x, 
+        ball.api.start({
+          x: ball.x,
           y: ball.y,
           config: { tension: 300, friction: 30 } // Snappier response for physics
         });
       }
-      
+
       ballsUpdated = true;
     }
-    
+
     // Improved collision detection with realistic physics
     for (let i = 0; i < updatedBalls.length; i++) {
       for (let j = i + 1; j < updatedBalls.length; j++) {
         const ball1 = updatedBalls[i];
         const ball2 = updatedBalls[j];
-        
+
         const dx = ball2.x - ball1.x;
         const dy = ball2.y - ball1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance < MIN_COLLISION_DISTANCE && distance > 0) {
           // Wake up settled balls
           if (ball1.isSettled) ball1.isSettled = false;
           if (ball2.isSettled) ball2.isSettled = false;
-          
+
           // Collision normal vector
           const nx = dx / distance;
           const ny = dy / distance;
-          
+
           // Overlap calculation
           const overlap = MIN_COLLISION_DISTANCE - distance;
           const separationDistance = overlap * 0.5;
-          
+
           // Separate balls to prevent overlap
           if (!ball1.isDragging) {
             ball1.x -= nx * separationDistance;
@@ -314,17 +317,17 @@ const Tech: React.FC = () => {
             ball2.x += nx * separationDistance;
             ball2.y += ny * separationDistance;
           }
-          
+
           // Realistic collision response
           const relativeVelX = ball2.vx - ball1.vx;
           const relativeVelY = ball2.vy - ball1.vy;
           const relativeVelNormal = relativeVelX * nx + relativeVelY * ny;
-          
+
           // Only resolve if balls are moving towards each other
           if (relativeVelNormal < 0) {
             const restitution = BOUNCE * 0.8; // Slightly reduced for realism
             const impulse = -(1 + restitution) * relativeVelNormal / 2;
-            
+
             if (!ball1.isDragging) {
               ball1.vx -= impulse * nx;
               ball1.vy -= impulse * ny;
@@ -334,38 +337,38 @@ const Tech: React.FC = () => {
               ball2.vy += impulse * ny;
             }
           }
-          
+
           // Ensure balls stay within bounds
           ball1.x = Math.max(0, Math.min(ball1.x, containerWidth - BALL_SIZE));
           ball1.y = Math.max(0, Math.min(ball1.y, containerHeight - BALL_SIZE - 25));
           ball2.x = Math.max(0, Math.min(ball2.x, containerWidth - BALL_SIZE));
           ball2.y = Math.max(0, Math.min(ball2.y, containerHeight - BALL_SIZE - 25));
-          
+
           // Update spring positions after collision
           if (ball1.api) {
-            ball1.api.start({ 
-              x: ball1.x, 
+            ball1.api.start({
+              x: ball1.x,
               y: ball1.y,
               config: { tension: 250, friction: 25 }
             });
           }
           if (ball2.api) {
-            ball2.api.start({ 
-              x: ball2.x, 
+            ball2.api.start({
+              x: ball2.x,
               y: ball2.y,
               config: { tension: 250, friction: 25 }
             });
           }
-          
+
           ballsUpdated = true;
         }
       }
     }
-    
+
     if (ballsUpdated) {
       ballsRef.current = updatedBalls;
     }
-    
+
     requestRef.current = requestAnimationFrame(animate);
   };
 
@@ -384,16 +387,16 @@ const Tech: React.FC = () => {
   // Static grid component for non-gravity mode
   const StaticTechGrid = () => {
     const webglSupported = useWebGLSupport();
-    
+
     const TechItem = ({ technology }: { technology: Technology }) => {
       const TechFallback = () => {
         const [imageError, setImageError] = useState(false);
-        
+
         return (
           <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center border border-purple-400/40 shadow-lg">
             {technology?.icon && !imageError ? (
-              <img 
-                src={technology.icon} 
+              <img
+                src={technology.icon}
                 alt={technology.name}
                 className="w-16 h-16 object-contain"
                 onError={() => setImageError(true)}
@@ -404,7 +407,7 @@ const Tech: React.FC = () => {
           </div>
         );
       };
-      
+
       return (
         <div className='w-28 h-28 flex flex-col items-center' key={technology.name}>
           {webglSupported ? (
@@ -421,7 +424,7 @@ const Tech: React.FC = () => {
         </div>
       );
     };
-    
+
     return (
       <div className="flex flex-row flex-wrap justify-center gap-10">
         {technologies.map((technology: Technology) => (
@@ -438,8 +441,8 @@ const Tech: React.FC = () => {
         onClick={() => setGravityMode(!gravityMode)}
         className={`
           relative inline-flex items-center px-6 py-3 rounded-full transition-all duration-300 ease-in-out
-          ${gravityMode 
-            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25' 
+          ${gravityMode
+            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25'
             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           }
           border border-cyan-400/30 hover:border-cyan-400/50
@@ -509,11 +512,11 @@ const Tech: React.FC = () => {
           {balls.map((ball, index) => {
             const technology = technologies[index];
             if (!technology) return null;
-            
+
             return (
-              <BouncyBall 
-                key={ball.id} 
-                technology={technology} 
+              <BouncyBall
+                key={ball.id}
+                technology={technology}
                 ball={ball}
                 index={index}
                 showLabel={false} // Hide labels in gravity mode
